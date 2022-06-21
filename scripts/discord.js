@@ -1,6 +1,5 @@
 require('dotenv').config();
 const axios = require('axios').default;
-
 const WEBHOOK_URL = process.env.URL_WEBHOOK_DISCORD;
 const URL_TITLE = process.env.URL_TITLE;
 const URL_TIKTOK = process.env.URL_TIKTOK;

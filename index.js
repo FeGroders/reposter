@@ -1,38 +1,20 @@
 require('dotenv').config();
-// import { sendWebhook } from './scripts/discord'
 const axios = require('axios').default;
 const discord = require('./scripts/discord');
-
-const TWITTER_USERNAME = process.env.TWITTER_USERNAME;
-const TWITTER_BEARER_TOKEN = process.env.TWITTER_BEARER_TOKEN;
-
-const config = {
-    headers: { 'Authorization': `Bearer ${TWITTER_BEARER_TOKEN}` }
-};
+const FACEBOOK_ACCESS_TOKEN = process.env.FACEBOOK_ACCESS_TOKEN;
+const FACEBOOK_PAGE_ID = process.env.FACEBOOK_PAGE_ID;
 
 function getLastTweets() {
     const date = new Date();
     date.setMinutes(date.getMinutes() - 5);
     const isoDate = date.toISOString();
 
-    axios.get(`https://api.twitter.com/2/tweets/search/recent?query=from:${TWITTER_USERNAME}&start_time=${isoDate}&expansions=attachments.media_keys&media.fields=url,preview_image_url`, config)
+    axios.get(`https://graph.facebook.com/v14.0/${FACEBOOK_PAGE_ID}/feed?fields=message%2Cfull_picture%2Ccreated_time&access_token=${FACEBOOK_ACCESS_TOKEN}&since=${isoDate}`)
         .then(response => {
-            var imageUrl = '';
-            if (response.data.meta.result_count == 0 || !response.data.hasOwnProperty('includes')) {
-              return;
-            }
             for (var i = 0; i < response.data.meta.result_count; i++) {
-                if (response.data.includes.media[i].hasOwnProperty('url')) {
-                    imageUrl = response.data.includes.media[i].url;
-                } else if (response.data.includes.media[i].hasOwnProperty('preview_image_url')) {
-                    imageUrl = response.data.includes.media[i].preview_image_url;
-                }
-                if (imageUrl) {
-                    console.log('Sending post..');
-                    discord.sendWebhook(imageUrl);
-                }
+                discord.sendWebhook(response.data.data[i].full_picture);
             }
-        });    
+        });  
 }
 
 setInterval(() => { //Execute every 5 minutes
