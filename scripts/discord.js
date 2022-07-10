@@ -11,51 +11,54 @@ const WEBHOOK_USERNAME = process.env.WEBHOOK_USERNAME;
 const WEBHOOK_AVATAR_URL = process.env.WEBHOOK_AVATAR_URL;
 
 function sendWebhook(imageUrl) {
+    console.log(new Date(), ': Sending webhook...');
     if (imageUrl != ''){
-    axios.post(WEBHOOK_URL, {
-        content: null,
-        embeds: [
-        {
-            title: 'Novo post!',
-            description: 'Você pode nos acompanhar aqui também:',
-            url: URL_TITLE,
-            color: 0,
-            fields: [
+        axios.post(WEBHOOK_URL, {
+            content: null,
+            embeds: [
             {
-                name: 'TikTok',
-                value: URL_TIKTOK,
-                inline: true
-                },
+                title: 'Novo post!',
+                description: 'Você pode nos acompanhar aqui também:',
+                url: URL_TITLE,
+                color: 0,
+                fields: [
                 {
-                name: 'Twitter',
-                value: URL_TWITTER,
-                inline: true
-                },
-                {
-                name: 'Facebook',
-                value: URL_FACEBOOK,
-                inline: true
-                },
-                {
-                name: 'Instagram',
-                value: URL_INSTAGRAM,
-                inline: true
-                },
-                {
-                name: 'Youtube',
-                value: URL_YOUTUBE,
-                inline: true
+                    name: 'TikTok',
+                    value: URL_TIKTOK,
+                    inline: true
+                    },
+                    {
+                    name: 'Twitter',
+                    value: URL_TWITTER,
+                    inline: true
+                    },
+                    {
+                    name: 'Facebook',
+                    value: URL_FACEBOOK,
+                    inline: true
+                    },
+                    {
+                    name: 'Instagram',
+                    value: URL_INSTAGRAM,
+                    inline: true
+                    },
+                    {
+                    name: 'Youtube',
+                    value: URL_YOUTUBE,
+                    inline: true
+                    }
+                    ],
+                image: {
+                url: imageUrl
+                    }
                 }
                 ],
-            image: {
-            url: imageUrl
-                }
-            }
-            ],
-        username: WEBHOOK_USERNAME,
-        avatar_url: WEBHOOK_AVATAR_URL,
-        attachments: []
-        });   
+            username: WEBHOOK_USERNAME,
+            avatar_url: WEBHOOK_AVATAR_URL,
+            attachments: []
+            }).then(response => {
+                console.log(new Date(), ': Webhook sent!');
+            });   
     }
 }
 

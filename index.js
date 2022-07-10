@@ -1,23 +1,29 @@
 require('dotenv').config();
 const axios = require('axios').default;
-const discord = require('./scripts/discord');
+var CronJob = require('cron').CronJob;
+const { sendWebhook } = require('./scripts/discord');
 const FACEBOOK_ACCESS_TOKEN = process.env.FACEBOOK_ACCESS_TOKEN;
 const FACEBOOK_PAGE_ID = process.env.FACEBOOK_PAGE_ID;
 
-function getLastTweets() {
+function getLastFacebookPost() {
     const date = new Date();
-    date.setMinutes(date.getMinutes() - 5);
+    date.setHours(date.getHours() - 1);
     const isoDate = date.toISOString();
+    const url = `https://graph.facebook.com/v14.0/${FACEBOOK_PAGE_ID}/feed?fields=message%2Cfull_picture%2Ccreated_time&access_token=${FACEBOOK_ACCESS_TOKEN}&since=${isoDate}`;
 
-    axios.get(`https://graph.facebook.com/v14.0/${FACEBOOK_PAGE_ID}/feed?fields=message%2Cfull_picture%2Ccreated_time&access_token=${FACEBOOK_ACCESS_TOKEN}&since=${isoDate}`)
+    axios.get(url)
         .then(response => {
-            for (var i = 0; i < response.data.meta.result_count; i++) {
-                discord.sendWebhook(response.data.data[i].full_picture);
+            for (var i = 0; i < response.data.data.length; i++) {
+                sendWebhook(response.data.data[i].full_picture);
             }
         });  
 }
 
-setInterval(() => { //Execute every 5 minutes
+//Execute every 1 hour
+var job = new CronJob('0 */1 * * *', function() {
     console.log(new Date(), ': Looking for new Tweets...')
-    getLastTweets();
-}, 300000);
+    getLastFacebookPost();
+});
+
+console.log(new Date(), ': Starting Cron Job...');
+job.start();
